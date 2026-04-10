@@ -3,7 +3,6 @@ from datetime import datetime
 from sqlalchemy import String, func, DateTime
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
-from . import DomainModel
 from .base import Base
 
 

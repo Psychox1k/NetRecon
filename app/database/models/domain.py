@@ -4,10 +4,7 @@ import enum
 from sqlalchemy import String, ForeignKey, DateTime, func, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .target import TargetModel
 from .base import Base
-from .port import PortModel
-from .ssl_cert import SSLCertificateModel
 
 class StatusDomain(str, enum.Enum):
     PENDING = "pending"
@@ -20,7 +17,7 @@ class DomainModel(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
 
-    target_id: Mapped[int] = mapped_column(ForeignKey("targets.id"), ondelete="CASCADE")
+    target_id: Mapped[int] = mapped_column(ForeignKey("targets.id", ondelete="CASCADE"))
     target: Mapped["TargetModel"] = relationship(back_populates="domains")
 
     domain_name: Mapped[str] = mapped_column(String(255))
