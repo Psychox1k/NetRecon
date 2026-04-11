@@ -15,14 +15,14 @@ class StatusDomain(str, enum.Enum):
 class DomainModel(Base):
     __tablename__ = "domains"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
 
-    target_id: Mapped[int] = mapped_column(ForeignKey("targets.id", ondelete="CASCADE"))
+    target_id: Mapped[int] = mapped_column(ForeignKey("targets.id", ondelete="CASCADE"), index=True)
     target: Mapped["TargetModel"] = relationship(back_populates="domains")
 
-    domain_name: Mapped[str] = mapped_column(String(255))
-    ip_address_v4: Mapped[str] = mapped_column(String(15), nullable=True)
-    ip_address_v6: Mapped[str] = mapped_column(String(39), nullable=True)
+    domain_name: Mapped[str] = mapped_column(String(255), unique=True)
+    ip_address_v4: Mapped[str | None] = mapped_column(String(15))
+    ip_address_v6: Mapped[str | None] = mapped_column(String(39))
     status: Mapped[StatusDomain] = mapped_column(
         Enum(StatusDomain),
             default=StatusDomain.PENDING

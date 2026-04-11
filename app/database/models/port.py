@@ -1,7 +1,7 @@
 from datetime import datetime
 import enum
 
-from sqlalchemy import ForeignKey, String, Enum, DateTime, func
+from sqlalchemy import ForeignKey, String, Enum, DateTime, func, Text
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from .base import Base
@@ -15,14 +15,14 @@ class PortStatus(str, enum.Enum):
 class PortModel(Base):
     __tablename__ = "ports"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    port_number: Mapped[int] = mapped_column()
-    service_name: Mapped[str] = mapped_column(String(255))
-    service_version: Mapped[str] = mapped_column(String(255))
-    banner: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    port_number: Mapped[int] = mapped_column(index=True)
+    service_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    service_version: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    banner: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[PortStatus] = mapped_column(Enum(PortStatus), default=PortStatus.OPEN)
 
-    domain_id: Mapped[int] = mapped_column(ForeignKey("domains.id", ondelete="CASCADE"))
+    domain_id: Mapped[int] = mapped_column(ForeignKey("domains.id", ondelete="CASCADE"), index=True)
     domain: Mapped["DomainModel"] = relationship(back_populates="ports")
 
 

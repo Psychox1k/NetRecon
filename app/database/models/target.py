@@ -8,8 +8,8 @@ from .base import Base
 class TargetModel(Base):
     __tablename__ = "targets"
 
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(255))
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(255), unique=True)
     domains: Mapped[list["DomainModel"]] = relationship(back_populates="target")
 
     created_at: Mapped[datetime] = mapped_column(
