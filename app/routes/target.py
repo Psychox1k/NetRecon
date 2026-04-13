@@ -1,5 +1,3 @@
-from http.client import responses
-
 from app.database import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -99,7 +97,6 @@ async def target_update(
     await db.refresh(db_target)
 
     return db_target
-
 
 
 @router.delete(

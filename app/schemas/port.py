@@ -1,7 +1,5 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy import Text
-
 from app.database.models.port import PortStatus
 
 
@@ -15,6 +13,12 @@ class PortBase(BaseModel):
 
 class PortCreate(PortBase):
     domain_id: int
+
+class PortUpdate(BaseModel):
+    service_name: str | None = None
+    service_version: str | None = None
+    banner: str | None = None
+    status: PortStatus | None = None
 
 class PortResponse(PortBase):
     id: int

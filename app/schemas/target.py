@@ -9,6 +9,10 @@ class TargetBase(BaseModel):
 class TargetCreate(TargetBase):
     pass
 
+
+class TargetUpdate(BaseModel):
+    name: str | None = None
+
 class TargetResponse(TargetBase):
     id: int
 
