@@ -1,9 +1,12 @@
 import asyncio
+import logging
+
 from scapy.layers.inet import IP, TCP
 from scapy.layers.inet6 import IPv6
 from scapy.sendrecv import sr1
-import ipaddress
 
+import ipaddress
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 SEM = asyncio.Semaphore(200)
 
 

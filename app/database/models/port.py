@@ -22,9 +22,8 @@ class PortModel(Base):
     banner: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[PortStatus] = mapped_column(Enum(PortStatus), default=PortStatus.OPEN)
 
-    domain_id: Mapped[int] = mapped_column(ForeignKey("domains.id", ondelete="CASCADE"), index=True)
-    domain: Mapped["DomainModel"] = relationship(back_populates="ports")
-
+    ip_id: Mapped[int] = mapped_column(ForeignKey("ip_addresses.id", ondelete="CASCADE"), index=True)
+    ip_address: Mapped["IPAddressModel"] = relationship(back_populates="ports")
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

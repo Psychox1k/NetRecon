@@ -21,17 +21,14 @@ class DomainModel(Base):
     target: Mapped["TargetModel"] = relationship(back_populates="domains")
 
     domain_name: Mapped[str] = mapped_column(String(255), unique=True)
-    ip_address_v4: Mapped[str | None] = mapped_column(String(15))
-    ip_address_v6: Mapped[str | None] = mapped_column(String(39))
+
     status: Mapped[StatusDomain] = mapped_column(
         Enum(StatusDomain),
             default=StatusDomain.PENDING
     )
-    ports: Mapped[list["PortModel"]] = relationship(back_populates="domain")
-    certificates: Mapped[list["SSLCertificateModel"]] = relationship(
-        secondary="domain_ssl_link",
-        back_populates="domains",
-        lazy="selectin"
+    ips: Mapped[list["IPAddressModel"]] = relationship(
+        back_populates="domain",
+        cascade="all, delete-orphan"
     )
 
     created_at: Mapped[datetime] = mapped_column(
