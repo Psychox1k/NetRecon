@@ -3,15 +3,16 @@ from pydantic import BaseModel, ConfigDict
 
 
 class SSLCertificateBase(BaseModel):
-    serial_number: str
-    issuer: str
-    subject: str
-    not_before: datetime
-    not_after: datetime
-    public_key: str
+    serial_number: str | None = None
+    issuer: str | None = None
+    subject: str | None = None
+    not_before: str | None = None
+    not_after: str | None = None
+    public_key: str | None = None
+    subdomains: List[str] = []
 
 class SSLCertificateCreate(SSLCertificateBase):
-    pass
+    ip_id: int
 
 class SSLCertificateResponse(SSLCertificateBase):
     id: int

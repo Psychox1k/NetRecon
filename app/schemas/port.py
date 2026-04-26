@@ -12,7 +12,7 @@ class PortBase(BaseModel):
 
 
 class PortCreate(PortBase):
-    domain_id: int
+    ip_id: int
 
 class PortUpdate(BaseModel):
     service_name: str | None = None
@@ -22,7 +22,8 @@ class PortUpdate(BaseModel):
 
 class PortResponse(PortBase):
     id: int
-    domain_id: int
+    ip_id: int
+
     created_at: datetime
     updated_at: datetime
 
