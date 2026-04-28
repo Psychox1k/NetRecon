@@ -7,6 +7,7 @@ from sqlalchemy import select
 
 from app.database.models import DomainModel, SSLCertificateModel
 from app.schemas.domain import DomainResponse, DomainCreate, DomainUpdate
+from database.models import IPAddressModel
 
 router = APIRouter(prefix="/domains", tags=["Domains"])
 
@@ -21,7 +22,10 @@ async def get_all_domains(
     name_domain: str | None = None,
     db: AsyncSession = Depends(get_db)
 ):
-    query = select(DomainModel).options(selectinload(DomainModel.certificates))
+    query = select(DomainModel).options(
+        selectinload(DomainModel.ips).selectinload(IPAddressModel.ports),
+        selectinload(DomainModel.ips).selectinload(IPAddressModel.certificate)
+    )
     if target_id:
         query = query.where(DomainModel.target_id == target_id)
 
@@ -41,13 +45,11 @@ async def get_domain_by_id(
         domain_id: int,
         db: AsyncSession = Depends(get_db)
 ):
-    query = select(
-        DomainModel
-    ).where(
-        DomainModel.id == domain_id
-    ).options(
-        selectinload(DomainModel.certificates)
+    query = select(DomainModel).where(DomainModel.id == domain_id).options(
+        selectinload(DomainModel.ips).selectinload(IPAddressModel.ports),
+        selectinload(DomainModel.ips).selectinload(IPAddressModel.certificate)
     )
+
     result = await db.execute(query)
     db_domain = result.scalar_one_or_none()
 
@@ -69,29 +71,24 @@ async def domain_create(
     domain_in: DomainCreate,
     db: AsyncSession = Depends(get_db)
 ):
-    domain_data = domain_in.model_dump(exclude={"certificate_ids"})
-    new_domain = DomainModel(**domain_data)
+    query = select(DomainModel).where(DomainModel.domain_name == domain_in.domain_name)
+    db_domain = (await db.execute(query)).scalar_one_or_none()
 
-    if domain_in.certificate_ids:
-        cert_query = select(SSLCertificateModel).where(
-            SSLCertificateModel.id.in_(domain_in.certificate_ids)
+    if db_domain:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Domain with {domain_in.domain_name} name already exist"
         )
-        certs = (await db.execute(cert_query)).scalars().all()
-        new_domain.certificates.extend(certs)
+
+    new_domain = DomainModel(**domain_in.model_dump())
+
     db.add(new_domain)
 
     await db.commit()
 
-    query = select(
-        DomainModel
-    ).where(
-        DomainModel.id == new_domain.id
-                           ).options(
-        selectinload(DomainModel.certificates)
-    )
+    await db.refresh(new_domain)
 
-    result = await db.execute(query)
-    return result.scalar_one()
+    return new_domain
 
 @router.patch(
     "/{domain_id}",
@@ -103,9 +100,7 @@ async def domain_update(
         domain_in: DomainUpdate,
         db: AsyncSession = Depends(get_db)
 ):
-    query = select(DomainModel).where(DomainModel.id == domain_id).options(
-        selectinload(DomainModel.certificates)
-    )
+    query = select(DomainModel).where(DomainModel.id == domain_id)
 
     db_domain = (await db.execute(query)).scalar_one_or_none()
 
@@ -116,30 +111,15 @@ async def domain_update(
         )
 
 
-    updated_data = domain_in.model_dump(
-        exclude_unset=True,
-        exclude={"certificate_ids"}
-    )
+    updated_data = domain_in.model_dump(exclude_unset=True)
 
     for key, value in updated_data.items():
         setattr(db_domain, key, value)
 
-    if domain_in.certificate_ids is not None:
-        cert_query = select(
-            SSLCertificateModel
-        ).where(SSLCertificateModel.id.in_(domain_in.certificate_ids))
-        certs = (await db.execute(cert_query)).scalars().all()
-
-        db_domain.certificates = list(certs)
-
     await db.commit()
+    await db.refresh(db_domain)
 
-    query = select(DomainModel).where(DomainModel.id == domain_id).options(
-        selectinload(DomainModel.certificates)
-    )
-    result = await db.execute(query)
-
-    return result.scalar_one()
+    return db_domain
 
 @router.delete(
     "/{domain_id}",

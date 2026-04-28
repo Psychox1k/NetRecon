@@ -5,6 +5,7 @@ from sqlalchemy import select
 
 from app.database.models import PortModel
 from app.schemas.port import PortResponse, PortCreate, PortUpdate
+from database.models import IPAddressModel
 
 router = APIRouter(prefix="/ports", tags=["Ports"])
 
@@ -14,12 +15,12 @@ router = APIRouter(prefix="/ports", tags=["Ports"])
     status_code=status.HTTP_200_OK
 )
 async def get_all_ports(
-    domain_id: int | None = None,
+    ip_name: str | None = None,
     db: AsyncSession = Depends(get_db)
 ):
     query = select(PortModel)
-    if domain_id:
-        query = query.where(PortModel.domain_id == domain_id)
+    if ip_name:
+        query = query.join(PortModel.ip_address).where(IPAddressModel.ip.ilike(f"%{ip_name}%"))
 
     result = await db.execute(query)
     return result.scalars().all()
@@ -55,7 +56,7 @@ async def port_create(
         db: AsyncSession = Depends(get_db)
 ):
     query = select(PortModel).where(
-        PortModel.domain_id == port_in.domain_id,
+        PortModel.ip_id == port_in.ip_id,
         PortModel.port_number == port_in.port_number
     )
     result = await db.execute(query)
