@@ -2,6 +2,7 @@ import asyncio
 import ssl
 from cryptography import x509
 from cryptography.x509.oid import ExtensionOID
+from cryptography.hazmat.primitives import serialization
 
 def parse_raw_certificate(cert_bytes):
     cert = x509.load_der_x509_certificate(cert_bytes)
@@ -11,6 +12,14 @@ def parse_raw_certificate(cert_bytes):
 
     valid_from = cert.not_valid_before_utc
     valid_until = cert.not_valid_after_utc
+
+    serial_number = str(cert.serial_number)
+
+    public_key = cert.public_key().public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    ).decode('utf-8')
+
     try:
         ext = cert.extensions.get_extension_for_oid(ExtensionOID.SUBJECT_ALTERNATIVE_NAME)
         domains = ext.value.get_values_for_type(x509.DNSName)
@@ -18,7 +27,7 @@ def parse_raw_certificate(cert_bytes):
     except x509.ExtensionNotFound:
         domains = []
 
-    return [subject, issuer, valid_from, valid_until, domains]
+    return [serial_number, public_key, subject, issuer, valid_from, valid_until, domains]
 
 
 
@@ -47,11 +56,13 @@ async def fetch_ssl_certificate(target_host: str, target_port: int) -> dict:
         print(f"Size of certificate:{len(cert)} bytes")
 
 
-        subject, issuer, valid_from, valid_until, domains = parse_raw_certificate(cert)
+        serial_number, public_key, subject, issuer, valid_from, valid_until, domains = parse_raw_certificate(cert)
 
         return {
             "port": target_port,
             "status": "SUCCESS",
+            "serial_number": serial_number,
+            "public_key": public_key,
             "subject": subject,
             "issuer": issuer,
             "not_before": valid_from.isoformat(),
@@ -63,6 +74,8 @@ async def fetch_ssl_certificate(target_host: str, target_port: int) -> dict:
         return {
             "port": target_port,
             "status": "TIMEOUT",
+            "serial_number": None,
+            "public_key": None,
             "subject": None,
             "issuer": None,
             "not_before": None,
@@ -75,6 +88,8 @@ async def fetch_ssl_certificate(target_host: str, target_port: int) -> dict:
         return {
             "port": target_port,
             "status": "Error",
+            "serial_number": None,
+            "public_key": None,
             "subject": None,
             "issuer": None,
             "not_before": None,

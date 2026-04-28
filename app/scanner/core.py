@@ -74,12 +74,12 @@ async def scan_target(target_domain: str, target_ports: list[int] = None) -> dic
     return final_report
 
 
-if __name__ == "__main__":
-    async def test():
-
-        res = await scan_target("google.com")
-        import json
-        print(json.dumps(res, indent=4, ensure_ascii=False))
-
-    asyncio.run(test())
+# if __name__ == "__main__":
+#     async def test():
+#
+#         res = await scan_target("www.wsei.pl")
+#         import json
+#         print(json.dumps(res, indent=4, ensure_ascii=False))
+#
+#     asyncio.run(test())
 
