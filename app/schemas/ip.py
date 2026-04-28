@@ -13,7 +13,11 @@ class IPAddressCreate(IPAddressBase):
     domain_id: int
 
 
-class IPAddressRead(IPAddressBase):
+class IPAddressUpdate(BaseModel):
+    pass
+
+
+class IPAddressResponse(IPAddressBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
