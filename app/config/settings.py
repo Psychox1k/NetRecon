@@ -17,6 +17,9 @@ class Settings(BaseAppSettings):
     POSTGRES_DB_PORT: int
     POSTGRES_DB: str
 
+    CELERY_BROKER_URL: str
+    CELERY_RESULT_BACKEND: str
+
     model_config = SettingsConfigDict(
         env_file=str(ROOT_DIR / ".env"),
         env_file_encoding="utf-8",
