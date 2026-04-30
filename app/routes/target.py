@@ -1,9 +1,11 @@
+from sqlalchemy.orm import selectinload
+
 from app.database import get_db
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.database.models import TargetModel
+from app.database.models import TargetModel, TargetStatus
 from app.schemas.target import TargetResponse, TargetCreate, TargetUpdate
 
 router = APIRouter(prefix="/targets", tags=["Targets"])
@@ -15,13 +17,21 @@ router = APIRouter(prefix="/targets", tags=["Targets"])
     status_code=status.HTTP_200_OK,
 )
 async def all_targets_retrieve(
-        name: str | None = None,
+        name: str | None = Query(None, description="Filter by target name "),
+        status_filter: TargetStatus | None = Query(
+            None, description="Filter by target status"
+        ),
         db: AsyncSession = Depends(get_db)
 ):
     query = select(TargetModel)
 
     if name:
         query = query.where(TargetModel.name.ilike(f"%{name}%"))
+
+    if status_filter:
+        query = query.where(TargetModel.status == status_filter)
+
+    query = query.options(selectinload(TargetModel.domains))
 
     result = await db.execute(query)
 
@@ -37,7 +47,9 @@ async def get_target_by_id(
         target_id: int,
         db: AsyncSession = Depends(get_db)
 ):
-    query = select(TargetModel).where(TargetModel.id == target_id)
+    query = select(TargetModel).where(
+        TargetModel.id == target_id
+    ).options(selectinload(TargetModel.domains))
     result = await db.execute(query)
     target = result.scalar_one_or_none()
 

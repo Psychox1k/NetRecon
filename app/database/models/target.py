@@ -1,9 +1,15 @@
 from datetime import datetime
 
-from sqlalchemy import String, DateTime, func
+from sqlalchemy import String, DateTime, func, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
+import enum
+
+class TargetStatus(str, enum.Enum):
+    ACTIVE = "active"
+    PAUSED = "paused"
+    FINISHED = "finished"
 
 class TargetModel(Base):
     __tablename__ = "targets"
@@ -11,6 +17,12 @@ class TargetModel(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255), unique=True)
     domains: Mapped[list["DomainModel"]] = relationship(back_populates="target")
+
+    status: Mapped[TargetStatus] = mapped_column(
+        Enum(TargetStatus),
+        default=TargetStatus.ACTIVE,
+        server_default=TargetStatus.ACTIVE.value
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

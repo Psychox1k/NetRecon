@@ -24,7 +24,7 @@ class DomainModel(Base):
 
     status: Mapped[StatusDomain] = mapped_column(
         Enum(StatusDomain),
-            default=StatusDomain.PENDING
+        default=StatusDomain.PENDING
     )
     ips: Mapped[list["IPAddressModel"]] = relationship(
         back_populates="domain",

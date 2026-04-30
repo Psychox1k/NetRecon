@@ -21,6 +21,12 @@ class DomainUpdate(DomainBase):
     domain_name: str | None = None
     status: StatusDomain | None = None
 
+class DomainMiniResponse(BaseModel):
+    id: int
+    domain_name: str
+    status: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 class DomainResponse(DomainBase):
     id: int
