@@ -1,8 +1,8 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
-from database.models.target import TargetStatus
-from schemas.domain import DomainMiniResponse
+from app.database.models import TargetStatus
+from app.schemas.domain import DomainMiniResponse
 
 
 class TargetBase(BaseModel):

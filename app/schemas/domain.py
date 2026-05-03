@@ -3,14 +3,13 @@ from typing import List
 
 from pydantic import BaseModel, ConfigDict
 
-from app.database.models.domain import StatusDomain
-from database.models import IPAddressModel
-
+from app.database.models import StatusDomain
+from .ip import IPAddressResponse
 
 class DomainBase(BaseModel):
     domain_name: str
     status: StatusDomain = StatusDomain.PENDING
-    ips: List[IPAddressModel] = []
+    ips: List[IPAddressResponse] = []
 
 
 class DomainCreate(DomainBase):

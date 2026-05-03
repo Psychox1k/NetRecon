@@ -9,7 +9,7 @@ class SSLCertificateBase(BaseModel):
     not_before: str | None = None
     not_after: str | None = None
     public_key: str | None = None
-    subdomains: List[str] = []
+    subdomains: list[str] = []
 
 class SSLCertificateCreate(SSLCertificateBase):
     ip_id: int

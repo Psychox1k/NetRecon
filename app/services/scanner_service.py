@@ -2,9 +2,15 @@ import logging
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 
-from database.models import DomainModel, TargetModel, IPAddressModel, PortModel, SSLCertificateModel
-from database.models.domain import StatusDomain
-from database.models.port import PortStatus
+from app.database.models import (
+    DomainModel,
+    TargetModel,
+    IPAddressModel,
+    PortModel,
+    SSLCertificateModel
+)
+from app.database.models import StatusDomain
+from app.database.models import PortStatus
 
 logger = logging.getLogger(__name__)
 

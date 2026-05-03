@@ -7,7 +7,7 @@ from sqlalchemy import select
 
 from app.database.models import DomainModel, SSLCertificateModel
 from app.schemas.domain import DomainResponse, DomainCreate, DomainUpdate
-from database.models import IPAddressModel
+from app.database.models import IPAddressModel
 
 router = APIRouter(prefix="/domains", tags=["Domains"])
 

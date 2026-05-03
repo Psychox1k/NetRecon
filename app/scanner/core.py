@@ -1,8 +1,13 @@
-from scanner import get_domain_ip_address, scan_ports, fetch_banner, fetch_ssl_certificate
+from .dns_resolver import get_domain_ip_address
+from .port_scanner import scan_ports
+from .banner_port import fetch_banner
+from .ssl_parser import fetch_ssl_certificate
+
 import logging
 logger = logging.getLogger(__name__)
 
 import asyncio
+
 
 async def scan_target(target_domain: str, target_ports: list[int] = None) -> dict:
     default_ports = [21, 22, 80, 443, 3306, 5432, 8080]
@@ -66,7 +71,7 @@ async def scan_target(target_domain: str, target_ports: list[int] = None) -> dic
             ipv6_report["open_ports"] = banner_results
 
             if 443 in open_ports:
-                ip_report["ssl_cert"] = await fetch_ssl_certificate(target_domain, 443)
+                ipv6_report["ssl_cert"] = await fetch_ssl_certificate(target_domain, 443)
 
         final_report["ips"].append(ipv6_report)
 

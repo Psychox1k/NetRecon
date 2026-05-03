@@ -4,8 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from app.database import get_db
-from database.models import IPAddressModel
-from schemas.ip import IPAddressResponse
+from app.database.models import IPAddressModel
+from app.schemas.ip import IPAddressResponse
 
 router = APIRouter(prefix="/ips", tags=["IPs"])
 

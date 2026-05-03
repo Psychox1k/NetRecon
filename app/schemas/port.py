@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict
-from app.database.models.port import PortStatus
+from app.database.models import PortStatus
 
 
 class PortBase(BaseModel):
