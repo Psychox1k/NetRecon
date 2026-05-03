@@ -23,7 +23,7 @@ class DomainModel(Base):
     domain_name: Mapped[str] = mapped_column(String(255), unique=True)
 
     status: Mapped[StatusDomain] = mapped_column(
-        Enum(StatusDomain),
+        Enum(StatusDomain, values_callable=lambda obj: [e.value for e in obj]),
         default=StatusDomain.PENDING
     )
     ips: Mapped[list["IPAddressModel"]] = relationship(

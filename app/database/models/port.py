@@ -20,7 +20,10 @@ class PortModel(Base):
     service_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     service_version: Mapped[str | None] = mapped_column(String(255), nullable=True)
     banner: Mapped[str | None] = mapped_column(Text, nullable=True)
-    status: Mapped[PortStatus] = mapped_column(Enum(PortStatus), default=PortStatus.OPEN)
+    status: Mapped[PortStatus] = mapped_column(
+        Enum(PortStatus, values_callable=lambda obj: [e.value for e in obj]),
+        default=PortStatus.OPEN
+    )
 
     ip_id: Mapped[int] = mapped_column(ForeignKey("ip_addresses.id", ondelete="CASCADE"), index=True)
     ip_address: Mapped["IPAddressModel"] = relationship(back_populates="ports")

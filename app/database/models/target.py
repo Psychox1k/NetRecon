@@ -19,7 +19,7 @@ class TargetModel(Base):
     domains: Mapped[list["DomainModel"]] = relationship(back_populates="target")
 
     status: Mapped[TargetStatus] = mapped_column(
-        Enum(TargetStatus),
+        Enum(TargetStatus, values_callable=lambda obj: [e.value for e in obj]),
         default=TargetStatus.ACTIVE,
         server_default=TargetStatus.ACTIVE.value
     )
