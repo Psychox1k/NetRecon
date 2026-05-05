@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.database.models import DomainModel, SSLCertificateModel
+from app.database.models import DomainModel
 from app.schemas.domain import DomainResponse, DomainCreate, DomainUpdate
 from app.database.models import IPAddressModel
 
@@ -35,6 +35,7 @@ async def get_all_domains(
     result = await db.execute(query)
 
     return result.scalars().all()
+
 
 @router.get(
     "/{domain_id}",
@@ -71,7 +72,9 @@ async def domain_create(
     domain_in: DomainCreate,
     db: AsyncSession = Depends(get_db)
 ):
-    query = select(DomainModel).where(DomainModel.domain_name == domain_in.domain_name)
+    query = select(DomainModel).where(
+        DomainModel.domain_name == domain_in.domain_name
+    )
     db_domain = (await db.execute(query)).scalar_one_or_none()
 
     if db_domain:
@@ -86,7 +89,9 @@ async def domain_create(
 
     await db.commit()
 
-    refresh_query = select(DomainModel).where(DomainModel.id == new_domain.id).options(
+    refresh_query = select(DomainModel).where(
+        DomainModel.id == new_domain.id
+    ).options(
         selectinload(DomainModel.ips).selectinload(IPAddressModel.ports),
         selectinload(DomainModel.ips).selectinload(IPAddressModel.certificate)
     )
@@ -94,6 +99,7 @@ async def domain_create(
     loaded_domain = result.scalar_one()
 
     return loaded_domain
+
 
 @router.patch(
     "/{domain_id}",
@@ -111,10 +117,9 @@ async def domain_update(
 
     if not db_domain:
         raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Domain not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Domain not found"
         )
-
 
     updated_data = domain_in.model_dump(exclude_unset=True)
 
@@ -126,6 +131,7 @@ async def domain_update(
 
     return db_domain
 
+
 @router.delete(
     "/{domain_id}",
     status_code=status.HTTP_204_NO_CONTENT
@@ -136,7 +142,10 @@ async def delete_domain(
 ):
     db_domain = await db.get(DomainModel, domain_id)
     if not db_domain:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Domain not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Domain not found"
+        )
 
     await db.delete(db_domain)
     await db.commit()

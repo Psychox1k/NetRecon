@@ -13,6 +13,7 @@ def get_main_menu() -> ReplyKeyboardMarkup:
 
     return builder.as_markup(resize_keyboard=True)
 
+
 def get_target_create_menu() -> ReplyKeyboardMarkup:
     builder = ReplyKeyboardBuilder()
 

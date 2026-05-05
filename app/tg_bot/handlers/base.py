@@ -1,12 +1,11 @@
 from aiogram import Router, F, types
 from aiogram.filters import CommandStart, Command
-from aiogram.fsm import state
 from aiogram.types import Message
 
 from app.tg_bot.keyboards.reply import get_main_menu
-from app.tg_bot.states import AddTarget
 
 router = Router()
+
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
@@ -21,8 +20,10 @@ async def cmd_start(message: Message):
 @router.message(Command("about"))
 async def show_about_info(message: types.Message):
     about_text = (
-        "<b>🚀 ScanDomen</b> — a cutting-edge infrastructure monitoring tool.\n\n"
-        "Our philosophy: <i>speed, reliability, and absolutely zero legacy.</i>\n\n"
+        "<b>🚀 ScanDomen</b> — a cutting-edge"
+        " infrastructure monitoring tool.\n\n"
+        "Our philosophy: <i>speed, reliability,"
+        "and absolutely zero legacy.</i>\n\n"
         "<b>⚙️ Under the hood:</b>\n"
         "• Fully asynchronous architecture\n"
         "• Isolated background workers\n"
@@ -34,5 +35,5 @@ async def show_about_info(message: types.Message):
 
     await message.answer(
         text=about_text,
-        parse_mode="HTML"  # Required for <b> and <i> tags to work
+        parse_mode="HTML"
     )

@@ -1,5 +1,6 @@
 import re
 
+
 def is_valid_domain(domain: str) -> bool:
     pattern = re.compile(
         r"^(?:[a-zA-Z0-9]"

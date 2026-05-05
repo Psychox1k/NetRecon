@@ -9,6 +9,7 @@ async def test_target_creation_assignment():
     assert target.name == "test_target"
     assert target.status == TargetStatus.ACTIVE
 
+
 @pytest.mark.asyncio
 async def test_target_change_status():
     target = TargetModel(name="test_pause")

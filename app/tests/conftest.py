@@ -1,11 +1,19 @@
 import pytest_asyncio
+
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.database import Base, get_db
-from app.database.models import TargetModel, DomainModel
+from app.database.models import (
+    TargetModel,
+    DomainModel,
+    IPAddressModel,
+    PortModel,
+    SSLCertificateModel
+)
 from main import app
+
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
@@ -14,7 +22,12 @@ engine = create_async_engine(
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
 )
-TestingSessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False, autoflush=False)
+
+TestingSessionLocal = async_sessionmaker(
+    bind=engine,
+    expire_on_commit=False,
+    autoflush=False
+)
 
 
 @pytest_asyncio.fixture(autouse=True)
@@ -39,7 +52,10 @@ async def client(db_session):
 
     app.dependency_overrides[get_db] = _get_test_db
 
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(
+            transport=ASGITransport(app=app),
+            base_url="http://test"
+    ) as ac:
         yield ac
 
     app.dependency_overrides.clear()
@@ -55,20 +71,27 @@ async def sample_target(db_session):
 
 @pytest_asyncio.fixture
 async def sample_domain(db_session, sample_target):
-    domain = DomainModel(domain_name="scanme.nmap.org", target_id=sample_target.id)
+    domain = DomainModel(
+        domain_name="scanme.nmap.org",
+        target_id=sample_target.id
+    )
     db_session.add(domain)
     await db_session.commit()
     return domain
 
-from app.database.models import IPAddressModel, PortModel, SSLCertificateModel
 
 @pytest_asyncio.fixture
 async def sample_ip(db_session, sample_domain):
-    ip = IPAddressModel(ip="192.168.1.100", version="ipv4", domain_id=sample_domain.id)
+    ip = IPAddressModel(
+        ip="192.168.1.100",
+        version="ipv4",
+        domain_id=sample_domain.id
+    )
     db_session.add(ip)
     await db_session.commit()
     await db_session.refresh(ip)
     return ip
+
 
 @pytest_asyncio.fixture
 async def sample_port(db_session, sample_ip):
@@ -77,6 +100,7 @@ async def sample_port(db_session, sample_ip):
     await db_session.commit()
     await db_session.refresh(port)
     return port
+
 
 @pytest_asyncio.fixture
 async def sample_certificate(db_session, sample_ip):

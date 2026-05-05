@@ -26,7 +26,10 @@ async def syn_scan(target_ip: str, target_port: int) -> int | None:
         pkt = IPv6(dst=target_ip) / TCP(dport=target_port, flags="S")
 
     async with SEM:
-        response = await loop.run_in_executor(None, lambda: sr1(pkt, timeout=1, verbose=0))
+        response = await loop.run_in_executor(
+            None,
+            lambda: sr1(pkt, timeout=1, verbose=0)
+        )
 
     if response and response.haslayer(TCP):
         flag = response.getlayer(TCP).flags
@@ -42,16 +45,3 @@ async def scan_ports(target_ip: str, ports: list[int]) -> list[int]:
     open_ports = [p for p in raw_results if p is not None]
 
     return open_ports
-#
-#
-# if __name__ == "__main__":
-#     async def test():
-#         ip = "8.8.8.8"
-#         test_ports = [21, 22, 53, 80, 443, 8080]
-#
-#         print(f"Starting scan {ip}...")
-#         open_ports = await scan_ports(ip, test_ports)
-#         print(f"Open: {open_ports}")
-#
-#
-#     asyncio.run(test())

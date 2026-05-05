@@ -2,14 +2,17 @@ from .dns_resolver import get_domain_ip_address
 from .port_scanner import scan_ports
 from .banner_port import fetch_banner
 from .ssl_parser import fetch_ssl_certificate
-
+import asyncio
 import logging
+
 logger = logging.getLogger(__name__)
 
-import asyncio
 
+async def scan_target(
+        target_domain: str,
+        target_ports: list[int] = None
+) -> dict:
 
-async def scan_target(target_domain: str, target_ports: list[int] = None) -> dict:
     default_ports = [21, 22, 80, 443, 3306, 5432, 8080]
     ports_to_scan = target_ports if target_ports else default_ports
 
@@ -24,15 +27,12 @@ async def scan_target(target_domain: str, target_ports: list[int] = None) -> dic
             "ips": []
         }
 
-
-
     final_report = {
         "status": "SUCCESS",
         "domain": target_domain,
         "ips": []
 
     }
-
 
     for ip in dns_result["ipv4"]:
         ip_report = {
@@ -50,7 +50,10 @@ async def scan_target(target_domain: str, target_ports: list[int] = None) -> dic
             ip_report["open_ports"] = banner_results
 
             if 443 in open_ports:
-                ip_report["ssl_cert"] = await fetch_ssl_certificate(target_domain, 443)
+                ip_report["ssl_cert"] = await fetch_ssl_certificate(
+                    target_domain,
+                    443
+                )
 
         final_report["ips"].append(ip_report)
 
@@ -71,20 +74,11 @@ async def scan_target(target_domain: str, target_ports: list[int] = None) -> dic
             ipv6_report["open_ports"] = banner_results
 
             if 443 in open_ports:
-                ipv6_report["ssl_cert"] = await fetch_ssl_certificate(target_domain, 443)
+                ipv6_report["ssl_cert"] = await fetch_ssl_certificate(
+                    target_domain,
+                    443
+                )
 
         final_report["ips"].append(ipv6_report)
 
-
     return final_report
-
-
-# if __name__ == "__main__":
-#     async def test():
-#
-#         res = await scan_target("www.wsei.pl")
-#         import json
-#         print(json.dumps(res, indent=4, ensure_ascii=False))
-#
-#     asyncio.run(test())
-#

@@ -1,16 +1,31 @@
 import pytest
 
-from app.database.models import IPAddressModel, SSLCertificateModel, PortModel, TargetModel, DomainModel
+from app.database.models import (
+    IPAddressModel,
+    SSLCertificateModel,
+    PortModel,
+    TargetModel,
+    DomainModel
+)
 
 
 @pytest.mark.asyncio
 async def test_cascade_delete_magic(db_session, sample_domain, sample_target):
-    ip = IPAddressModel(ip="8.8.8.8", version="ipv4", domain_id=sample_domain.id)
+    ip = IPAddressModel(
+        ip="8.8.8.8",
+        version="ipv4",
+        domain_id=sample_domain.id
+    )
     db_session.add(ip)
     await db_session.flush()
 
     port = PortModel(port_number=22, ip_id=ip.id)
-    cert = SSLCertificateModel(issuer="GlobalSign", ip_id=ip.id, serial_number="1234567890", subject="scanme.nmap.org",)
+    cert = SSLCertificateModel(
+        issuer="GlobalSign",
+        ip_id=ip.id,
+        serial_number="1234567890",
+        subject="scanme.nmap.org"
+    )
     db_session.add_all([port, cert])
     await db_session.commit()
 

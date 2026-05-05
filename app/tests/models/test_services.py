@@ -1,11 +1,16 @@
 import pytest
-import pytest_asyncio
 
 from app.database.models import IPAddressModel, SSLCertificateModel, PortModel
+
+
 @pytest.mark.asyncio
 async def test_port_model_logic(db_session, sample_domain):
 
-    ip = IPAddressModel(ip="192.168.1.1", version="ipv4", domain_id=sample_domain.id)
+    ip = IPAddressModel(
+        ip="192.168.1.1",
+        version="ipv4",
+        domain_id=sample_domain.id
+    )
     db_session.add(ip)
     await db_session.flush()
 
@@ -19,7 +24,11 @@ async def test_port_model_logic(db_session, sample_domain):
 
 @pytest.mark.asyncio
 async def test_create_ssl_certificate(db_session, sample_domain):
-    ip = IPAddressModel(ip="45.33.32.156", version="ipv4", domain_id=sample_domain.id)
+    ip = IPAddressModel(
+        ip="45.33.32.156",
+        version="ipv4",
+        domain_id=sample_domain.id
+    )
     db_session.add(ip)
     await db_session.flush()
 
@@ -36,4 +45,3 @@ async def test_create_ssl_certificate(db_session, sample_domain):
     assert cert.id is not None
     assert cert.issuer == "Let's Encrypt"
     assert cert.ip_id == ip.id
-

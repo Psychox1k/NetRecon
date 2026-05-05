@@ -5,8 +5,11 @@ import socket
 async def get_domain_ip_address(domain: str) -> dict:
     loop = asyncio.get_running_loop()
     try:
-        result = await loop.getaddrinfo(host=domain, port=None, family=socket.AF_UNSPEC)
-
+        result = await loop.getaddrinfo(
+            host=domain,
+            port=None,
+            family=socket.AF_UNSPEC
+        )
 
         ipv4_addresses = []
         ipv6_addresses = []
@@ -21,7 +24,6 @@ async def get_domain_ip_address(domain: str) -> dict:
             elif family == socket.AF_INET6 and ip not in ipv6_addresses:
                 ipv6_addresses.append(ip)
 
-
         return {
             "domain": domain,
             "ipv4": ipv4_addresses,
@@ -29,7 +31,6 @@ async def get_domain_ip_address(domain: str) -> dict:
             "status": "success",
             "error": None
         }
-
 
     except socket.gaierror as e:
 
@@ -40,8 +41,3 @@ async def get_domain_ip_address(domain: str) -> dict:
             "status": "failed",
             "error": str(e)
         }
-
-# Testing
-if __name__ == "__main__":
-    res = asyncio.run(get_domain_ip_address("www.google.com"))
-    print(res)

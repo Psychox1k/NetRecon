@@ -2,6 +2,7 @@ import pytest
 from httpx import AsyncClient
 from fastapi import status
 
+
 @pytest.mark.asyncio
 async def test_create_domain_api(client: AsyncClient, sample_target):
     """Test creating a domain via the API"""

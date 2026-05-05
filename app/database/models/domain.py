@@ -6,24 +6,32 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 
+
 class StatusDomain(str, enum.Enum):
     PENDING = "pending"
     ACTIVE = "active"
     DEAD = "dead"
     IGNORED = "ignored"
 
+
 class DomainModel(Base):
     __tablename__ = "domains"
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    target_id: Mapped[int] = mapped_column(ForeignKey("targets.id", ondelete="CASCADE"), index=True)
+    target_id: Mapped[int] = mapped_column(
+        ForeignKey("targets.id", ondelete="CASCADE"),
+        index=True
+    )
     target: Mapped["TargetModel"] = relationship(back_populates="domains")
 
     domain_name: Mapped[str] = mapped_column(String(255), unique=True)
 
     status: Mapped[StatusDomain] = mapped_column(
-        Enum(StatusDomain, values_callable=lambda obj: [e.value for e in obj]),
+        Enum(
+            StatusDomain,
+            values_callable=lambda obj: [e.value for e in obj]
+        ),
         default=StatusDomain.PENDING
     )
     ips: Mapped[list["IPAddressModel"]] = relationship(
@@ -40,4 +48,3 @@ class DomainModel(Base):
         server_default=func.now(),
         onupdate=func.now()
     )
-

@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 
 from app.tg_bot.states import AddTarget
 from app.tg_bot.utils.validators import is_valid_domain
-from app.tg_bot.keyboards.reply import get_target_create_menu, get_main_menu, get_cancel_rkb
+from app.tg_bot.keyboards.reply import get_main_menu, get_cancel_rkb
 
 from app.worker.tasks import scan_and_save_domain
 from app.tg_bot.keyboards.inline import (
@@ -19,12 +19,18 @@ from app.tg_bot.keyboards.inline import (
 )
 
 from app.database import async_session
-from app.database.models import TargetModel, DomainModel, IPAddressModel, TargetStatus
+from app.database.models import (
+    TargetModel,
+    DomainModel,
+    IPAddressModel,
+    TargetStatus
+)
 from app.tg_bot.states import AddDomainToExisting
 from app.tg_bot.utils.formatters import format_domain_results
 from app.tg_bot.keyboards.inline import get_results_ikb
 
 router = Router()
+
 
 @router.message(F.text == "🎯 My targets")
 async def show_targets(message: Message):
@@ -35,7 +41,10 @@ async def show_targets(message: Message):
         real_targets = result.scalars().all()
 
     if not real_targets:
-        await message.answer("You don't have any targets yet. Click '➕ Add target' to create one.")
+        await message.answer(
+            "You don't have any targets yet."
+            " Click '➕ Add target' to create one."
+        )
         return
 
     await message.answer(
@@ -52,6 +61,7 @@ async def add_domain_start(message: Message, state: FSMContext):
     )
     await state.set_state(AddTarget.waiting_for_name)
 
+
 @router.message(F.text == "❌ Cancel", StateFilter('*'))
 async def process_cancel_text(message: Message, state: FSMContext):
     await state.clear()
@@ -62,12 +72,14 @@ async def process_cancel_text(message: Message, state: FSMContext):
     )
 
 
-
 @router.message(AddTarget.waiting_for_name)
 async def process_target_name(message: types.Message, state: FSMContext):
     await state.update_data(target_name=message.text)
-    await message.answer("Great! Now sendthe domain to scan (e.g, example.com):")
+    await message.answer(
+        "Great! Now sendthe domain to scan (e.g, example.com):"
+    )
     await state.set_state(AddTarget.waiting_for_domain)
+
 
 @router.message(AddTarget.waiting_for_domain)
 async def process_domain_name(message: types.Message, state: FSMContext):
@@ -87,18 +99,24 @@ async def process_domain_name(message: types.Message, state: FSMContext):
         chat_id=message.from_user.id
     )
     await message.answer(
-        f"✅ Target <b>{target_name}</b> added!\n🚀 Scan started for <b>{domain}</b>.",
+        f"✅ Target <b>{target_name}</b> added!"
+        f"\n🚀 Scan started for <b>{domain}</b>.",
         reply_markup=get_main_menu()
     )
 
     await state.clear()
+
 
 @router.callback_query(F.data.startswith("show_target_"))
 async def process_target_click(callback: CallbackQuery):
     target_id = int(callback.data.split("_")[-1])
 
     async with async_session() as db:
-        query = select(TargetModel).where(TargetModel.id == target_id).options(selectinload(TargetModel.domains))
+        query = select(TargetModel).where(
+            TargetModel.id == target_id
+        ).options(
+            selectinload(TargetModel.domains)
+        )
         result = await db.execute(query)
         target = result.scalar_one_or_none()
 
@@ -109,7 +127,11 @@ async def process_target_click(callback: CallbackQuery):
     if not target.domains:
         await callback.message.edit_text(
             text=f"Target <b>{target.name}</b> doesn't have any domains yet.",
-            reply_markup=get_domains_ikb(target_id, target.domains, target.status),
+            reply_markup=get_domains_ikb(
+                target_id,
+                target.domains,
+                target.status
+            ),
             parse_mode="HTML"
         )
         await callback.answer()
@@ -117,7 +139,11 @@ async def process_target_click(callback: CallbackQuery):
 
     await callback.message.edit_text(
         text=f"Domains for target <b>{target.name}</b>:",
-        reply_markup=get_domains_ikb(target_id, target.domains, target.status),
+        reply_markup=get_domains_ikb(
+            target_id,
+            target.domains,
+            target.status
+        ),
         parse_mode="HTML"
     )
 
@@ -138,7 +164,6 @@ async def process_back_to_targets(callback: CallbackQuery):
         )
         await callback.answer()
         return
-
 
     await callback.message.edit_text(
         text="Here are your active targets:",
@@ -164,10 +189,12 @@ async def process_scan_new_domain(callback: CallbackQuery, state: FSMContext):
     await state.set_state(AddDomainToExisting.waiting_for_domain)
 
     await callback.message.answer(
-        text=f"Send the new domain you want to scan for <b>{target_name}</b> (e.g., example.com):",
+        text=f"Send the new domain you want to scan for "
+             f"<b>{target_name}</b> (e.g., example.com):",
         parse_mode="HTML"
     )
     await callback.answer()
+
 
 @router.callback_query(F.data.startswith("show_domain_"))
 async def process_domain_click(callback: CallbackQuery):
@@ -199,9 +226,15 @@ async def process_view_results(callback: CallbackQuery):
     domain_id = int(callback.data.split("_")[-1])
 
     async with async_session() as db:
-        query = select(DomainModel).where(DomainModel.id == domain_id).options(
-            selectinload(DomainModel.ips).selectinload(IPAddressModel.ports),
-            selectinload(DomainModel.ips).selectinload(IPAddressModel.certificate)
+        query = select(DomainModel).where(
+            DomainModel.id == domain_id
+        ).options(
+            selectinload(
+                DomainModel.ips
+            ).selectinload(IPAddressModel.ports),
+            selectinload(
+                DomainModel.ips
+            ).selectinload(IPAddressModel.certificate)
         )
         domain = (await db.execute(query)).scalar_one_or_none()
 
@@ -217,7 +250,6 @@ async def process_view_results(callback: CallbackQuery):
         parse_mode="HTML"
     )
     await callback.answer()
-
 
 
 @router.message(AddDomainToExisting.waiting_for_domain)
@@ -250,9 +282,14 @@ async def ask_delete_target(callback: CallbackQuery):
     target_id = int(callback.data.split("_")[-1])
 
     await callback.message.edit_text(
-        text="⚠️ <b>Are you absolutely sure you want to delete this target?</b>\n"
-             "<i>All associated domains and scan results will be permanently lost!</i>",
-        reply_markup=get_confirm_delete_ikb(item_type="target", item_id=target_id),
+        text="⚠️ <b>Are you absolutely sure you"
+             " want to delete this target?</b>\n"
+             "<i>All associated domains and scan"
+             " results will be permanently lost!</i>",
+        reply_markup=get_confirm_delete_ikb(
+            item_type="target",
+            item_id=target_id
+        ),
         parse_mode="HTML"
     )
     await callback.answer()
@@ -266,9 +303,15 @@ async def ask_delete_domain(callback: CallbackQuery):
     domain_id = int(parts[-1])
 
     await callback.message.edit_text(
-        text="⚠️ <b>Are you absolutely sure you want to delete this domain?</b>\n"
-             "<i>All associated data scan results will be permanently lost!</i>",
-        reply_markup=get_confirm_delete_ikb(item_type="domain", item_id=domain_id, target_id=target_id),
+        text="⚠️ <b>Are you absolutely sure you want"
+             " to delete this domain?</b>\n"
+             "<i>All associated data scan results"
+             " will be permanently lost!</i>",
+        reply_markup=get_confirm_delete_ikb(
+            item_type="domain",
+            item_id=domain_id,
+            target_id=target_id
+        ),
         parse_mode="HTML"
     )
     await callback.answer()
@@ -295,13 +338,22 @@ async def confirm_delete_item(callback: CallbackQuery):
                 await db.delete(domain)
                 await db.commit()
 
-                query = select(TargetModel).where(TargetModel.id == target_id).options(selectinload(TargetModel.domains))
+                query = select(TargetModel).where(
+                    TargetModel.id == target_id
+                ).options(
+                    selectinload(TargetModel.domains)
+                )
                 target = (await db.execute(query)).scalar_one_or_none()
 
                 if target:
                     await callback.message.edit_text(
-                        text=f"✅ Domain deleted.\n\nDomains for target <b>{target.name}</b>:",
-                        reply_markup=get_domains_ikb(target_id, target.domains, target.status),
+                        text=f"✅ Domain deleted.\n\n"
+                             f"Domains for target <b>{target.name}</b>:",
+                        reply_markup=get_domains_ikb(
+                            target_id,
+                            target.domains,
+                            target.status
+                        ),
                         parse_mode="HTML"
                     )
 
@@ -313,11 +365,16 @@ async def process_download_json(callback: CallbackQuery):
     parts = callback.data.split("_")
     domain_id = int(parts[-1])
 
-
     async with async_session() as db:
-        query = select(DomainModel).where(DomainModel.id == domain_id).options(
-            selectinload(DomainModel.ips).selectinload(IPAddressModel.ports),
-            selectinload(DomainModel.ips).selectinload(IPAddressModel.certificate)
+        query = select(DomainModel).where(
+            DomainModel.id == domain_id
+        ).options(
+            selectinload(
+                DomainModel.ips
+            ).selectinload(IPAddressModel.ports),
+            selectinload(
+                DomainModel.ips
+            ).selectinload(IPAddressModel.certificate)
         )
         domain = (await db.execute(query)).scalar_one_or_none()
 
@@ -339,7 +396,6 @@ async def process_download_json(callback: CallbackQuery):
             "open_ports": [],
             "ssl_cert": None
         }
-
 
         if ip_obj.ports:
             for port_obj in ip_obj.ports:
@@ -381,12 +437,17 @@ async def process_download_json(callback: CallbackQuery):
 
     await callback.answer()
 
+
 @router.callback_query(F.data.startswith("toggle_target_"))
 async def process_target_status_change(callback: CallbackQuery):
     target_id = int(callback.data.split("_")[-1])
 
     async with async_session() as db:
-        query = select(TargetModel).where(TargetModel.id == target_id).options(selectinload(TargetModel.domains))
+        query = select(TargetModel).where(
+            TargetModel.id == target_id
+        ).options(
+            selectinload(TargetModel.domains)
+        )
         result = await db.execute(query)
         target = result.scalar_one_or_none()
 
@@ -399,19 +460,23 @@ async def process_target_status_change(callback: CallbackQuery):
         elif target.status == "active":
             target.status = TargetStatus.PAUSED
 
-
         await db.commit()
         await db.refresh(target)
 
-        status_msg = "✅ Target Activated." if target.status == TargetStatus.ACTIVE else "⏸ Target Paused."
+        status_msg = (
+            "✅ "
+            "Target Activated."
+        ) if target.status == TargetStatus.ACTIVE else "⏸ Target Paused."
         text = f"{status_msg}\n\nDomains for target <b>{target.name}</b>:"
 
         await callback.message.edit_text(
             text=text,
-            reply_markup=get_domains_ikb(target_id, target.domains, target.status),
+            reply_markup=get_domains_ikb(
+                target_id,
+                target.domains,
+                target.status
+            ),
             parse_mode="HTML"
         )
 
     await callback.answer()
-
-

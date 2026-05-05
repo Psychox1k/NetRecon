@@ -1,5 +1,6 @@
 import asyncio
 
+
 async def fetch_banner(target_host: str, target_port: int = 80) -> dict:
     writer = None
     try:

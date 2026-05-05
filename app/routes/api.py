@@ -11,4 +11,8 @@ api_router.include_router(target_router, prefix="/targets", tags=["targets"])
 api_router.include_router(domain_router, prefix="/domains", tags=["domains"])
 api_router.include_router(ip_router, prefix="/ips", tags=["ips"])
 api_router.include_router(port_router, prefix="/ports", tags=["ports"])
-api_router.include_router(ssl_certificate_router, prefix="/certificates", tags=["ssl"])
+api_router.include_router(
+    ssl_certificate_router,
+    prefix="/certificates",
+    tags=["ssl"]
+)

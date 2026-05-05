@@ -3,6 +3,7 @@ import pytest_asyncio
 from sqlalchemy import select
 from app.database.models import TargetModel, DomainModel
 
+
 @pytest_asyncio.fixture
 async def sample_target(db_session):
     target = TargetModel(name="Auto_sample_test")
@@ -21,6 +22,7 @@ async def test_create_domain(db_session, sample_target):
     assert domain.id is not None
     assert domain.domain_name == "example.com"
     assert domain.target_id == sample_target.id
+
 
 @pytest.mark.asyncio
 async def test_read_domain(db_session, sample_target):
@@ -53,7 +55,10 @@ async def test_update_domain(db_session, sample_target):
 
 @pytest.mark.asyncio
 async def test_delete_domain(db_session, sample_target):
-    domain = DomainModel(domain_name="delete-me.com", target_id=sample_target.id)
+    domain = DomainModel(
+        domain_name="delete-me.com",
+        target_id=sample_target.id
+    )
     db_session.add(domain)
     db_session.commit()
 
@@ -64,4 +69,3 @@ async def test_delete_domain(db_session, sample_target):
 
     fetched_domain = await db_session.get(DomainModel, domain_id)
     assert fetched_domain is None
-

@@ -29,8 +29,10 @@ async def lifespan(app: FastAPI):
 
     with suppress(Exception):
         await bot.session.close()
+
 app = FastAPI(lifespan=lifespan)
 app.include_router(api_router, prefix="/api/v1")
+
 
 @app.get("/")
 async def root():

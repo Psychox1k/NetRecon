@@ -16,8 +16,8 @@ class SSLCertificateModel(Base):
             "ip_addresses.id",
             ondelete="CASCADE"
         ),
-            unique=True,
-            index=True
+        unique=True,
+        index=True
     )
 
     serial_number: Mapped[str | None] = mapped_column(String(255))
@@ -28,8 +28,9 @@ class SSLCertificateModel(Base):
     public_key: Mapped[str | None] = mapped_column(String(800))
 
     subdomains: Mapped[list[str]] = mapped_column(JSON, default=list)
-    ip_address: Mapped["IPAddressModel"] = relationship(back_populates="certificate")
-
+    ip_address: Mapped["IPAddressModel"] = relationship(
+        back_populates="certificate"
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

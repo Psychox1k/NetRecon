@@ -18,13 +18,14 @@ def format_domain_results(domain: DomainModel) -> str:
 
         if ip.ports:
             open_ports = [str(p.port_number) for p in ip.ports]
-            text += f"  ├ 🔓 <b>Open Ports:</b> <code>{', '.join(open_ports)}</code>\n"
+            text += (f"  ├ 🔓 <b>Open Ports:</b> "
+                     f"<code>{', '.join(open_ports)}</code>\n")
         else:
             text += "  ├ 🔒 <i>No open ports detected.</i>\n"
 
         if ip.certificate:
             cert = ip.certificate
-            text += f"  └ 🔐 <b>SSL Certificate:</b>\n"
+            text += "  └ 🔐 <b>SSL Certificate:</b>\n"
 
             issuer = cert.issuer[:35] + "..." if len(cert.issuer) > 35 else cert.issuer
 
@@ -34,7 +35,6 @@ def format_domain_results(domain: DomainModel) -> str:
             text += "  └ ⚠️ <i>No SSL certificate found.</i>\n"
 
         text += "\n"
-
 
     text += "━━━━━━━━━━━━━━━━━━━━\n"
     text += "<i>⏱ Data is valid as of the last scan.</i>\n\n"

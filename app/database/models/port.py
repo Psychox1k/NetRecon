@@ -6,6 +6,7 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from .base import Base
 
+
 class PortStatus(str, enum.Enum):
     OPEN = "open"
     CLOSED = "closed"
@@ -17,16 +18,32 @@ class PortModel(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     port_number: Mapped[int] = mapped_column(index=True)
-    service_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    service_version: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    service_name: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True
+    )
+    service_version: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True
+    )
     banner: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[PortStatus] = mapped_column(
-        Enum(PortStatus, values_callable=lambda obj: [e.value for e in obj]),
+        Enum(
+            PortStatus,
+            values_callable=lambda obj: [e.value for e in obj]
+        ),
         default=PortStatus.OPEN
     )
 
-    ip_id: Mapped[int] = mapped_column(ForeignKey("ip_addresses.id", ondelete="CASCADE"), index=True)
-    ip_address: Mapped["IPAddressModel"] = relationship(back_populates="ports")
+    ip_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            "ip_addresses.id",
+            ondelete="CASCADE"
+        ), index=True
+    )
+    ip_address: Mapped["IPAddressModel"] = relationship(
+        back_populates="ports"
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

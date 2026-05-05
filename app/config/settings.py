@@ -1,10 +1,8 @@
-import os
 from pathlib import Path
-from typing import Any
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT_DIR = Path(__file__).parent.parent.parent
+
 
 class BaseAppSettings(BaseSettings):
     BASE_DIR: Path = Path(__file__).parent.parent
@@ -30,5 +28,6 @@ class Settings(BaseAppSettings):
         env_file_encoding="utf-8",
         extra="ignore"
     )
+
 
 settings = Settings()

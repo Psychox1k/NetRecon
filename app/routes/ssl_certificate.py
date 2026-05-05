@@ -6,9 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database.models import SSLCertificateModel
-from app.schemas.ssl_certificate import SSLCertificateResponse, SSLCertificateCreate
+from app.schemas.ssl_certificate import (
+    SSLCertificateResponse,
+    SSLCertificateCreate
+)
 
 router = APIRouter(prefix="")
+
 
 @router.get(
     "/",
@@ -23,6 +27,7 @@ async def get_all_certificates(
 
     return result.scalars().all()
 
+
 @router.get(
     "/{certificate_id}",
     response_model=SSLCertificateResponse,
@@ -32,14 +37,17 @@ async def certificate_get_by_id(
         certificate_id: int,
         db: AsyncSession = Depends(get_db)
 ):
-    query = select(SSLCertificateModel).where(SSLCertificateModel.id == certificate_id)
+    query = select(SSLCertificateModel).where(
+        SSLCertificateModel.id == certificate_id
+    )
     result = await db.execute(query)
     db_certificate = result.scalar_one_or_none()
 
     if not db_certificate:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"SSL_Certificates with ID {certificate_id} wasn't not FOUND"
+            detail=f"SSL_Certificates with ID "
+                   f"{certificate_id} wasn't not FOUND"
         )
 
     return db_certificate
@@ -99,7 +107,8 @@ async def certificate_delete(
     if not db_cert:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"SSL_Certificates with ID {certificate_id} wasn't not FOUND"
+            detail=f"SSL_Certificates with ID"
+                   f" {certificate_id} wasn't not FOUND"
         )
 
     await db.delete(db_cert)

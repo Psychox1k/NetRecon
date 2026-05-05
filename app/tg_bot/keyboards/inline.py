@@ -1,6 +1,6 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton
-from app.database.models import TargetModel, TargetStatus
+from app.database.models import TargetStatus
 
 
 def get_targets_ikb(targets: list):
@@ -12,13 +12,15 @@ def get_targets_ikb(targets: list):
             callback_data=f"show_target_{target.id}"
         ))
 
-
     builder.adjust(1)
     return builder.as_markup()
 
 
-def get_domains_ikb(target_id: int, domains: list, target_status: TargetStatus):
-
+def get_domains_ikb(
+        target_id: int,
+        domains: list,
+        target_status: TargetStatus
+):
     builder = InlineKeyboardBuilder()
 
     if target_status == TargetStatus.PAUSED:
@@ -49,7 +51,6 @@ def get_domains_ikb(target_id: int, domains: list, target_status: TargetStatus):
             callback_data=f"show_domain_{target_id}_{domain.id}"
         ))
 
-
     builder.adjust(1, 1, 2)
 
     builder.row(
@@ -59,7 +60,6 @@ def get_domains_ikb(target_id: int, domains: list, target_status: TargetStatus):
         )
     )
 
-
     builder.row(
         InlineKeyboardButton(
             text="🔙 Back to targets",
@@ -67,8 +67,8 @@ def get_domains_ikb(target_id: int, domains: list, target_status: TargetStatus):
         )
     )
 
-
     return builder.as_markup()
+
 
 def get_domain_info_ikb(target_id: int, domain_id: int):
     builder = InlineKeyboardBuilder()
@@ -95,7 +95,12 @@ def get_domain_info_ikb(target_id: int, domain_id: int):
 
     return builder.as_markup()
 
-def get_confirm_delete_ikb(item_type: str, item_id: int, target_id: int = None):
+
+def get_confirm_delete_ikb(
+        item_type: str,
+        item_id: int,
+        target_id: int = None
+):
     builder = InlineKeyboardBuilder()
 
     builder.button(
@@ -123,7 +128,7 @@ def get_results_ikb(target_id: int, domain_id: int):
     builder.row(
         InlineKeyboardButton(
             text="🖥 Open in Swagger",
-            url=f"http://0.0.0.0:8000/docs"
+            url="http://0.0.0.0:8000/docs"
         )
     )
 
@@ -142,4 +147,3 @@ def get_results_ikb(target_id: int, domain_id: int):
     )
 
     return builder.as_markup()
-

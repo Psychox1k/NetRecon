@@ -14,6 +14,7 @@ from app.database.models import PortStatus
 
 logger = logging.getLogger(__name__)
 
+
 class ScanService:
     def __init__(self, db: AsyncSession):
         self.db = db
@@ -50,7 +51,9 @@ class ScanService:
                 await self.db.flush()
 
             result = await self.db.execute(
-                select(DomainModel).where(DomainModel.domain_name == domain_name)
+                select(DomainModel).where(
+                    DomainModel.domain_name == domain_name
+                )
             )
             domain = result.scalar_one_or_none()
 
@@ -82,7 +85,9 @@ class ScanService:
                 if not ip_model:
                     ip_model = IPAddressModel(
                         ip=ip_str,
-                        version=ip_data.get("version", "IPv4" if "." in ip_str else "IPv6"),
+                        version=ip_data.get(
+                            "version", "IPv4" if "." in ip_str else "IPv6"
+                        ),
                         domain_id=domain.id,
                     )
                     self.db.add(ip_model)
@@ -90,7 +95,7 @@ class ScanService:
 
                 await self.db.execute(
                     delete(PortModel).where(
-                    PortModel.ip_id == ip_model.id
+                        PortModel.ip_id == ip_model.id
                     )
                 )
 
@@ -113,7 +118,9 @@ class ScanService:
                     self.db.add(port_model)
 
                 ssl_info = ip_data.get("ssl_cert", {})
-                if ssl_info and isinstance(ssl_info, dict) and ssl_info.get("status") == "SUCCESS":
+                if ssl_info and isinstance(
+                        ssl_info, dict
+                ) and ssl_info.get("status") == "SUCCESS":
                     ssl_cert_model = SSLCertificateModel(
                         serial_number=ssl_info.get("serial_number"),
                         public_key=ssl_info.get("public_key"),

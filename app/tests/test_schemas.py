@@ -31,7 +31,7 @@ def test_target_create_invalid_empty():
 
 def test_target_read_from_orm():
     """
-    Test that TargetResponse can correctly parse and validate data coming 
+    Test that TargetResponse can correctly parse and validate data coming
     from a database model (ORM mode).
     """
     # Simulating data as it would come from an SQLAlchemy model
@@ -50,11 +50,10 @@ def test_target_read_from_orm():
     assert schema.status == "active"
 
 
-# --- Domain Schema Tests ---
-
 def test_domain_create_logic():
     """
-    Validate that DomainCreate links to a target_id and has a proper domain string.
+    Validate that DomainCreate links to a target_id
+     and has a proper domain string.
     """
     payload = {"domain_name": "google.com", "target_id": 5}
     schema = DomainCreate(**payload)
@@ -86,11 +85,10 @@ def test_ip_read_validation():
     }
     schema = IPAddressResponse.model_validate(valid_data)
     assert str(schema.ip) == "8.8.8.8"
-
-
 # def test_ip_read_invalid_format():
 #     """
-#     Check that Pydantic's built-in network validation catches bad IP strings.
+#     Check that Pydantic's built-in network
+#     validation catches bad IP strings.
 #     """
 #     invalid_data = {
 #         "id": 1,

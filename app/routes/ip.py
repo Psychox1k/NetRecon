@@ -39,10 +39,12 @@ async def get_ip_by_id(
         ip_id: int,
         db: AsyncSession = Depends(get_db)
 ):
-    query = select(IPAddressModel).where(IPAddressModel.id == ip_id).options(
+    query = select(IPAddressModel).where(
+        IPAddressModel.id == ip_id
+    ).options(
             selectinload(IPAddressModel.ports),
             selectinload(IPAddressModel.certificate)
-        )
+    )
 
     db_ip = (await db.execute(query)).scalar_one_or_none()
 

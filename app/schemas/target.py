@@ -18,6 +18,7 @@ class TargetUpdate(BaseModel):
     name: str | None = None
     status: TargetStatus | None = None
 
+
 class TargetResponse(TargetBase):
     id: int
 

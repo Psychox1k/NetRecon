@@ -14,11 +14,13 @@ class PortBase(BaseModel):
 class PortCreate(PortBase):
     ip_id: int
 
+
 class PortUpdate(BaseModel):
     service_name: str | None = None
     service_version: str | None = None
     banner: str | None = None
     status: PortStatus | None = None
+
 
 class PortResponse(PortBase):
     id: int

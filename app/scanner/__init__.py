@@ -5,6 +5,7 @@ from .port_scanner import scan_ports
 from .ssl_parser import fetch_ssl_certificate
 from .core import scan_target
 
+
 __all__ = [
     "fetch_banner",
     "get_domain_ip_address",

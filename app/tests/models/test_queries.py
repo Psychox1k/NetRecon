@@ -12,7 +12,11 @@ from app.database.models import (
 
 @pytest.mark.asyncio
 async def test_full_chain_loading(db_session, sample_domain):
-    ip = IPAddressModel(ip="1.1.1.1", version="ipv4", domain_id=sample_domain.id)
+    ip = IPAddressModel(
+        ip="1.1.1.1",
+        version="ipv4",
+        domain_id=sample_domain.id
+    )
     db_session.add(ip)
     await db_session.flush()
 
@@ -21,7 +25,9 @@ async def test_full_chain_loading(db_session, sample_domain):
     db_session.add_all([port, cert])
     await db_session.commit()
 
-    query = select(DomainModel).where(DomainModel.id == sample_domain.id).options(
+    query = select(DomainModel).where(
+        DomainModel.id == sample_domain.id
+    ).options(
         selectinload(DomainModel.ips).selectinload(IPAddressModel.ports),
         selectinload(DomainModel.ips).selectinload(IPAddressModel.certificate)
     )

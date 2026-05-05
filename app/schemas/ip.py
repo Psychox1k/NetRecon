@@ -23,6 +23,3 @@ class IPAddressResponse(IPAddressBase):
     id: int
     certificate: Optional[SSLCertificateResponse] = None
     ports: List[PortResponse] = []
-
-
-

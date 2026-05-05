@@ -9,6 +9,7 @@ from app.database.models import IPAddressModel
 
 router = APIRouter(prefix="")
 
+
 @router.get(
     "/",
     response_model=list[PortResponse],
@@ -20,10 +21,13 @@ async def get_all_ports(
 ):
     query = select(PortModel)
     if ip_name:
-        query = query.join(PortModel.ip_address).where(IPAddressModel.ip.ilike(f"%{ip_name}%"))
+        query = query.join(PortModel.ip_address).where(
+            IPAddressModel.ip.ilike(f"%{ip_name}%")
+        )
 
     result = await db.execute(query)
     return result.scalars().all()
+
 
 @router.get(
     "/{port_id}",
@@ -45,6 +49,7 @@ async def get_port_by_id(
         )
 
     return db_port
+
 
 @router.post(
     "/",
@@ -71,6 +76,7 @@ async def port_create(
     await db.commit()
     await db.refresh(new_port)
     return new_port
+
 
 @router.patch("/{port_id}", response_model=PortResponse)
 async def update_port(

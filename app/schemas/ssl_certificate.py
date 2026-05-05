@@ -11,8 +11,10 @@ class SSLCertificateBase(BaseModel):
     public_key: str | None = None
     subdomains: list[str] = []
 
+
 class SSLCertificateCreate(SSLCertificateBase):
     ip_id: int
+
 
 class SSLCertificateResponse(SSLCertificateBase):
     id: int

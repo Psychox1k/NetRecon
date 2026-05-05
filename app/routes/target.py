@@ -61,6 +61,7 @@ async def get_target_by_id(
 
     return target
 
+
 @router.post(
     "/",
     response_model=TargetResponse,
@@ -74,14 +75,15 @@ async def target_create(
     db.add(new_target)
     await db.commit()
 
-    query = select(TargetModel).where(TargetModel.id == new_target.id).options(
+    query = select(TargetModel).where(
+        TargetModel.id == new_target.id
+    ).options(
         selectinload(TargetModel.domains)
     )
     result = await db.execute(query)
     loaded_target = result.scalar_one()
 
     return loaded_target
-
 
 
 @router.patch(
@@ -137,5 +139,3 @@ async def target_delete_by_id(
     await db.delete(db_target)
 
     await db.commit()
-
-
