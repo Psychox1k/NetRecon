@@ -1,3 +1,7 @@
+"""
+IP Address routing module.
+Handles retrieval operations for IP Address models.
+"""
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -13,9 +17,12 @@ router = APIRouter(prefix="")
 @router.get(
     "/",
     response_model=list[IPAddressResponse],
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    summary="Get all IP addresses",
+    description="Retrieve a list of all IP addresses. Can be optionally"
+                " filtered by a partial IP string match."
 )
-async def get_all_ports(
+async def get_all_ips(  # Fixed typo: changed from get_all_ports to get_all_ips
     ip_name: str | None = None,
     db: AsyncSession = Depends(get_db)
 ):
@@ -33,7 +40,11 @@ async def get_all_ports(
 @router.get(
     "/{ip_id}",
     response_model=IPAddressResponse,
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    summary="Get IP address by ID",
+    description="Retrieve a specific IP address by its unique ID,"
+                " including all related open ports and SSL certificate"
+                " data."
 )
 async def get_ip_by_id(
         ip_id: int,
@@ -51,7 +62,7 @@ async def get_ip_by_id(
     if not db_ip:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"IP with ID {ip_id} wasn't FOUND"
+            detail=f"IP address with ID {ip_id} not found"
         )
 
     return db_ip

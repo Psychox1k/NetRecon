@@ -1,10 +1,13 @@
+"""
+SSL Certificate routing module.
+Handles CRUD operations for SSL/TLS certificates discovered on targets.
+"""
 from sqlalchemy.exc import IntegrityError
-
-from app.database import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
+from app.database import get_db
 from app.database.models import SSLCertificateModel
 from app.schemas.ssl_certificate import (
     SSLCertificateResponse,
@@ -17,7 +20,10 @@ router = APIRouter(prefix="")
 @router.get(
     "/",
     response_model=list[SSLCertificateResponse],
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    summary="Get all SSL certificates",
+    description="Retrieve a list of all parsed"
+                " SSL/TLS certificates from the database."
 )
 async def get_all_certificates(
         db: AsyncSession = Depends(get_db)
@@ -31,7 +37,11 @@ async def get_all_certificates(
 @router.get(
     "/{certificate_id}",
     response_model=SSLCertificateResponse,
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    summary="Get SSL certificate by ID",
+    description="Retrieve detailed information about a specific SSL"
+                " certificate, including issuer, subject, and expiration"
+                " dates."
 )
 async def certificate_get_by_id(
         certificate_id: int,
@@ -46,8 +56,8 @@ async def certificate_get_by_id(
     if not db_certificate:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"SSL_Certificates with ID "
-                   f"{certificate_id} wasn't not FOUND"
+            # Fixed the "wasn't not FOUND" typo
+            detail=f"SSL Certificate with ID {certificate_id} not found"
         )
 
     return db_certificate
@@ -56,7 +66,11 @@ async def certificate_get_by_id(
 @router.post(
     "/",
     response_model=SSLCertificateResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new SSL certificate",
+    description="Add a new SSL certificate record. If a certificate with the"
+                " same serial number and issuer already exists, it returns "
+                "the existing record instead of failing."
 )
 async def certificate_create(
     certificate_in: SSLCertificateCreate,
@@ -71,6 +85,7 @@ async def certificate_create(
     result = await db.execute(query)
     existing_cert = result.scalar_one_or_none()
 
+    # Good job on handling idempotency here!
     if existing_cert:
         return existing_cert
 
@@ -86,13 +101,16 @@ async def certificate_create(
         await db.rollback()
         raise HTTPException(
             status_code=400,
-            detail="Certificate creation failed due to parallel requests"
+            detail="Certificate creation failed due to"
+                   " parallel requests or constraint violation"
         )
 
 
 @router.delete(
     "/{certificate_id}",
-    status_code=status.HTTP_204_NO_CONTENT
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete SSL certificate",
+    description="Remove an SSL certificate record from the database."
 )
 async def certificate_delete(
     certificate_id: int,
@@ -107,8 +125,8 @@ async def certificate_delete(
     if not db_cert:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"SSL_Certificates with ID"
-                   f" {certificate_id} wasn't not FOUND"
+            # Fixed the "wasn't not FOUND" typo
+            detail=f"SSL Certificate with ID {certificate_id} not found"
         )
 
     await db.delete(db_cert)
