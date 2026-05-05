@@ -9,7 +9,7 @@ from app.database.models import DomainModel, SSLCertificateModel
 from app.schemas.domain import DomainResponse, DomainCreate, DomainUpdate
 from app.database.models import IPAddressModel
 
-router = APIRouter(prefix="/domains", tags=["Domains"])
+router = APIRouter(prefix="")
 
 
 @router.get(
@@ -86,9 +86,14 @@ async def domain_create(
 
     await db.commit()
 
-    await db.refresh(new_domain)
+    refresh_query = select(DomainModel).where(DomainModel.id == new_domain.id).options(
+        selectinload(DomainModel.ips).selectinload(IPAddressModel.ports),
+        selectinload(DomainModel.ips).selectinload(IPAddressModel.certificate)
+    )
+    result = await db.execute(refresh_query)
+    loaded_domain = result.scalar_one()
 
-    return new_domain
+    return loaded_domain
 
 @router.patch(
     "/{domain_id}",

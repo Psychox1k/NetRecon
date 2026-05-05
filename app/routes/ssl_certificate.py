@@ -8,7 +8,7 @@ from sqlalchemy import select
 from app.database.models import SSLCertificateModel
 from app.schemas.ssl_certificate import SSLCertificateResponse, SSLCertificateCreate
 
-router = APIRouter(prefix="/ssl_certificates", tags=["SSL_Certificates"])
+router = APIRouter(prefix="")
 
 @router.get(
     "/",

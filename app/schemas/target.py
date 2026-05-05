@@ -1,12 +1,12 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.database.models import TargetStatus
 from app.schemas.domain import DomainMiniResponse
 
 
 class TargetBase(BaseModel):
-    name: str
+    name: str = Field(..., min_length=1, max_length=255)
     status: TargetStatus = TargetStatus.ACTIVE
 
 

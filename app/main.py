@@ -1,16 +1,10 @@
 import asyncio
-import threading
 from contextlib import asynccontextmanager, suppress
 from fastapi import FastAPI
 
 from app.tg_bot.main import bot, dp
 from app.config.settings import settings
-
-from app.routes.target import router as target_router
-from app.routes.ip import router as ip_router
-from app.routes.ssl_certificate import router as ssl_certificate_router
-from app.routes.domain import router as domain_router
-from app.routes.port import router as port_router
+from app.routes.api import api_router
 
 
 @asynccontextmanager
@@ -36,19 +30,8 @@ async def lifespan(app: FastAPI):
     with suppress(Exception):
         await bot.session.close()
 app = FastAPI(lifespan=lifespan)
-
-app.include_router(target_router)
-app.include_router(ip_router)
-app.include_router(ssl_certificate_router)
-app.include_router(domain_router)
-app.include_router(port_router)
-
+app.include_router(api_router, prefix="/api/v1")
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}

@@ -8,7 +8,7 @@ from sqlalchemy import select
 from app.database.models import TargetModel, TargetStatus
 from app.schemas.target import TargetResponse, TargetCreate, TargetUpdate
 
-router = APIRouter(prefix="/targets", tags=["Targets"])
+router = APIRouter(prefix="")
 
 
 @router.get(
@@ -74,9 +74,13 @@ async def target_create(
     db.add(new_target)
     await db.commit()
 
-    await db.refresh(new_target)
+    query = select(TargetModel).where(TargetModel.id == new_target.id).options(
+        selectinload(TargetModel.domains)
+    )
+    result = await db.execute(query)
+    loaded_target = result.scalar_one()
 
-    return new_target
+    return loaded_target
 
 
 

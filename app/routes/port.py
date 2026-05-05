@@ -7,7 +7,7 @@ from app.database.models import PortModel
 from app.schemas.port import PortResponse, PortCreate, PortUpdate
 from app.database.models import IPAddressModel
 
-router = APIRouter(prefix="/ports", tags=["Ports"])
+router = APIRouter(prefix="")
 
 @router.get(
     "/",

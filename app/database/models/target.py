@@ -16,7 +16,7 @@ class TargetModel(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255), unique=True)
-    domains: Mapped[list["DomainModel"]] = relationship(back_populates="target")
+    domains: Mapped[list["DomainModel"]] = relationship(back_populates="target", cascade="all, delete-orphan")
 
     status: Mapped[TargetStatus] = mapped_column(
         Enum(TargetStatus, values_callable=lambda obj: [e.value for e in obj]),

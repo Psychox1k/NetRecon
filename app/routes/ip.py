@@ -7,7 +7,7 @@ from app.database import get_db
 from app.database.models import IPAddressModel
 from app.schemas.ip import IPAddressResponse
 
-router = APIRouter(prefix="/ips", tags=["IPs"])
+router = APIRouter(prefix="")
 
 
 @router.get(
