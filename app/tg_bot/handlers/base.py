@@ -1,5 +1,5 @@
-from aiogram import Router, F
-from aiogram.filters import CommandStart
+from aiogram import Router, F, types
+from aiogram.filters import CommandStart, Command
 from aiogram.fsm import state
 from aiogram.types import Message
 
@@ -16,6 +16,23 @@ async def cmd_start(message: Message):
         reply_markup = get_main_menu()
     )
 
-@router.message(F.text == "ℹ️ Help")
-async def add_domain_start(message: Message):
-    await message.answer("HELLO it\' s service for scanning domain ")
+
+@router.message(F.text == "ℹ️ About")
+@router.message(Command("about"))
+async def show_about_info(message: types.Message):
+    about_text = (
+        "<b>🚀 ScanDomen</b> — a cutting-edge infrastructure monitoring tool.\n\n"
+        "Our philosophy: <i>speed, reliability, and absolutely zero legacy.</i>\n\n"
+        "<b>⚙️ Under the hood:</b>\n"
+        "• Fully asynchronous architecture\n"
+        "• Isolated background workers\n"
+        "• Clean, modern tech stack\n\n"
+        "We automate the scanning routine, giving you a lightning-fast "
+        "interface right in Telegram. No compromises—just modern solutions "
+        "for real tasks."
+    )
+
+    await message.answer(
+        text=about_text,
+        parse_mode="HTML"  # Required for <b> and <i> tags to work
+    )

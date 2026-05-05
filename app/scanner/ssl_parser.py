@@ -100,4 +100,12 @@ async def fetch_ssl_certificate(target_host: str, target_port: int) -> dict:
     finally:
         if writer:
             writer.close()
-            await writer.wait_closed()
+            try:
+                await writer.wait_closed()
+            except ssl.SSLError as e:
+                if "APPLICATION_DATA_AFTER_CLOSE_NOTIFY" in str(e):
+                    pass
+                else:
+                    print(f"Warning: SSL Error during socket close: {e}")
+            except Exception as e:
+                pass

@@ -87,4 +87,4 @@ async def scan_target(target_domain: str, target_ports: list[int] = None) -> dic
 #         print(json.dumps(res, indent=4, ensure_ascii=False))
 #
 #     asyncio.run(test())
-
+#

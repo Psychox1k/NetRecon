@@ -1,4 +1,4 @@
-from aiogram.types import ReplyKeyboardMarkup
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 
@@ -18,4 +18,10 @@ def get_target_create_menu() -> ReplyKeyboardMarkup:
 
     builder.button(text="Add domain to scan")
     builder.button(text="Back to Menu")
+    return builder.as_markup(resize_keyboard=True)
+
+
+def get_cancel_rkb():
+    builder = ReplyKeyboardBuilder()
+    builder.add(KeyboardButton(text="❌ Cancel"))
     return builder.as_markup(resize_keyboard=True)
