@@ -33,23 +33,47 @@ async def notify_user(
                 f"\n\nReason: <code>{error}</code>"
             )
         else:
-            ips_count = len(
-                scan_results
-            ) if isinstance(
-                scan_results,
-                list
-            ) else len(scan_results.get("ips", []))
+            if isinstance(scan_results, list):
+                ips_data = scan_results
+            else:
+                ips_data = scan_results.get("ips", []) if scan_results else []
+
+            ips_count = len(ips_data)
+
+            details = []
+            for ip_info in ips_data[:3]:
+                ip_addr = ip_info.get("ip", "Unknown")
+
+                open_ports = ip_info.get("open_ports", [])
+                ports_list = [str(p.get("port")) for p in open_ports if p.get("port")]
+                ports_str = ", ".join(ports_list) if ports_list else "No open ports"
+
+                ssl_str = ""
+                ssl_info = ip_info.get("ssl_cert")
+                if ssl_info and isinstance(ssl_info, dict) and ssl_info.get("status") == "SUCCESS":
+                    issuer = ssl_info.get("issuer", "Unknown")
+                    ssl_str = f"\n   └ 🔐 SSL: {issuer}"
+
+                details.append(f"🌐 <b>{ip_addr}</b>\n   ├ 🔌 Ports: {ports_str}{ssl_str}")
+
+            details_text = "\n\n".join(details)
+            if ips_count > 3:
+                details_text += f"\n\n   ... and {ips_count - 3} more IPs."
+
             text = (
                 f"✅ <b>Scan Complete: {domain_name}</b>\n\n"
-                f"🔍 IP addresses found: <b>{ips_count}</b>\n"
-                f"💾 Data successfully saved."
-                f" Go to the domain menu to view the results."
+                f"🔍 IP addresses found: <b>{ips_count}</b>\n\n"
+                f"{details_text}\n\n"
+                f"💾 Data successfully saved.\n"
+                f"Go to the domain menu to view the full JSON results."
             )
+
         await bot.send_message(
             chat_id=chat_id,
             text=text,
             parse_mode="HTML"
         )
+
     except Exception as e:
         logger.error(f"Failed to send Telegram notification to {chat_id}: {e}")
     finally:
@@ -62,7 +86,7 @@ async def process_scan_async(target_name: str, domain_name: str):
     async with async_session() as db:
         service = ScanService(db)
         await service.save_scan_results(target_name, domain_name, scan_results)
-
+        await db.commit()
     return scan_results
 
 
