@@ -8,7 +8,7 @@ from app.routes.api import api_router
 
 # --- Swagger UI Description ---
 description = """
-**ScanDomen API** is the core of the automated infrastructure scanning system. 🚀
+**NetScan API** is the core of the automated infrastructure scanning system. 🚀
 
 ## Features:
 * **Targets** - Manage scan targets (projects/infrastructures).
@@ -42,11 +42,11 @@ async def lifespan(app: FastAPI):
 
 # --- FastAPI Initialization with documentation settings ---
 app = FastAPI(
-    title="ScanDomen API",
+    title="NetScan API",
     description=description,
     version="1.0.0",
     contact={
-        "name": "ScanDomen Admin",
+        "name": "ScanDomain Admin",
     },
     lifespan=lifespan
 )
@@ -59,4 +59,4 @@ async def root():
     """
     Base endpoint to verify that the server is up and running.
     """
-    return {"status": "ok", "message": "ScanDomen API is running!"}
+    return {"status": "ok", "message": "NetScan API is running!"}

@@ -20,7 +20,7 @@ async def cmd_start(message: Message):
 @router.message(Command("about"))
 async def show_about_info(message: types.Message):
     about_text = (
-        "<b>🚀 ScanDomen</b> — a cutting-edge"
+        "<b>🚀 NetScan</b> — a cutting-edge"
         " infrastructure monitoring tool.\n\n"
         "Our philosophy: <i>speed, reliability,"
         "and absolutely zero legacy.</i>\n\n"
